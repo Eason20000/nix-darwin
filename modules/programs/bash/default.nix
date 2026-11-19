@@ -63,7 +63,11 @@ in
       if [ -n "$__ETC_BASHRC_SOURCED" -o -n "$NOSYSBASHRC" ]; then return; fi
       __ETC_BASHRC_SOURCED=1
 
-      if [ -z "$__NIX_DARWIN_SET_ENVIRONMENT_DONE" ]; then
+      # A login shell starts a new environment epoch: markers inherited from a
+      # parent session (for example a tmux pane or a nested login shell) must
+      # not make it skip setEnvironment, which would leave PATH ordered by
+      # macOS' path_helper instead of environment.systemPath.
+      if [ -z "$__NIX_DARWIN_SET_ENVIRONMENT_DONE" ] || shopt -q login_shell; then
         . ${config.system.build.setEnvironment}
       fi
 
